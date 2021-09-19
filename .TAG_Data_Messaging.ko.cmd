@@ -1,0 +1,1 @@
+cmd_/home/paolomelissari/Desktop/ProgettoSOA/TAG_Data_Messaging.ko := ld -r -m elf_x86_64  -z max-page-size=0x200000  --build-id  -T ./scripts/module-common.lds -o /home/paolomelissari/Desktop/ProgettoSOA/TAG_Data_Messaging.ko /home/paolomelissari/Desktop/ProgettoSOA/TAG_Data_Messaging.o /home/paolomelissari/Desktop/ProgettoSOA/TAG_Data_Messaging.mod.o;  true

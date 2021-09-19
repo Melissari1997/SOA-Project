@@ -1,0 +1,12 @@
+{
+    "C_Cpp.errorSquiggles": "Disabled",
+    "files.associations": {
+        "unistd.h": "c",
+        "tbdetype.h": "c",
+        "chardev.h": "c",
+        "interface.h": "c",
+        "kernel.h": "c",
+        "string.h": "c",
+        "syscall_discovery.h": "c"
+    }
+}
