@@ -29,7 +29,7 @@ typedef struct TAG_Service{
   unsigned int tag;    // valore del tag
   int uid_Creator;   // PID del creatore
   int perm;   // permessi
-  list levels; // lista contenente i 32 livelli, ognuno implementato come lista RCU
+  list levels; // lista contenente i 32 livelli, ognuno implementato come elemento di una lista RCU
 } TAG_Service;
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

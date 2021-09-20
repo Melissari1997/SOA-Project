@@ -1,7 +1,6 @@
 MODNAME=TAG_Data_Messaging
 USER_DIR=user
 TEST_DIR=test
-CLI_DIR=cli
 
 USER_LIB_INC=-I$(USER_DIR)/interface $(USER_DIR)/interface/interface.c
 
