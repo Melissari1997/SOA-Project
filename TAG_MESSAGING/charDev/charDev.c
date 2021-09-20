@@ -1,8 +1,8 @@
 #include "charDev.h"
 
 scanModuleStatus *getModuleStatus() {
-  scanModuleStatus *status = kzalloc(sizeof(scanModuleStatus), GFP_USER); // todo: verificare che forse debba essere kernel space
-  status->size = STATUS_SIZE_MAX;                         // verrà ridimensionata con la chiamata successiva
+  scanModuleStatus *status = kzalloc(sizeof(scanModuleStatus), GFP_USER); 
+  status->size = STATUS_SIZE_MAX;                         // verrà ridimensionata dalla scan_Service
   status->message = scan_Service(&status->size);
   return status;
 }
@@ -54,10 +54,10 @@ struct file_operations fileOps = {
 
 int majorNum;
 dev_t devNo;          // Major and Minor device numbers combined into 32 bits
-struct class *pClass; // class_create will set this
+struct class *class; // class_create will set this
 
+//callback che definisce che il device avrà nonme dev_name(dev) e sarà nella cartella /dev/MODNAME
 static char *dev_devnode(struct device *dev, umode_t *mode) {
-  printk("\n\n****%s: %d\n\n", __func__, __LINE__);
   if (mode != NULL)
     *mode = 0444;
   return kasprintf(GFP_KERNEL, "%s/%s", MODNAME, dev_name(dev));
@@ -65,9 +65,9 @@ static char *dev_devnode(struct device *dev, umode_t *mode) {
 }
 
 int devkoInit(void) {
-  struct device *pDev;
+  struct device *device;
 
-  // Register character device
+  // Registro il char device (creo un link tra il device ed il corrispondente /dev file nel kernel space)
   majorNum = register_chrdev(0, DEVICE_NAME, &fileOps);
   if (majorNum < 0) {
     printk(KERN_ERR "Could not register device: %d\n", majorNum);
@@ -75,31 +75,35 @@ int devkoInit(void) {
   }
   devNo = MKDEV(majorNum, 0); // Create a dev_t, 32 bit version of numbers
 
-  // Create /sys/class/DEVICE_NAME in preparation of creating /dev/DEVICE_NAME
+  // Voglio renderlo accessibile in user space
 
-  pClass = class_create(THIS_MODULE, DEVICE_NAME);
-  if (IS_ERR(pClass)){
+  // Creo /sys/class/DEVICE_NAME per poi creare /dev/DEVICE_NAME --> virtual device, ritorna un puntatore a struct class
+  // che verrà usato per chiamare la device_create
+
+  class = class_create(THIS_MODULE, DEVICE_NAME);
+  if (IS_ERR(class)){
     printk(KERN_ERR "can't create /sys/%s class", DEVICE_NAME);
     unregister_chrdev_region(devNo, 1);
     return -1;
   }
-  pClass->devnode = dev_devnode;
-  // Create /dev/DEVICE_NAME for this char dev
-  if (IS_ERR(pDev = device_create(pClass, NULL, devNo, NULL, DEVICE_NAME))) {
+  //rende accessibile il driver su /dev
+  class->devnode = dev_devnode;
+  // Creo /dev/DEVICE_NAME, da cui sarà accessibile il Char Device
+  if (IS_ERR(device = device_create(class, NULL, devNo, NULL, DEVICE_NAME))) {
     printk(KERN_ERR "can't create device /dev/%s/%s\n", MODNAME, DEVICE_NAME);
-    class_destroy(pClass);
+    class_destroy(class);
     unregister_chrdev_region(devNo, 1);
     return -1;
   }
   printk(KERN_INFO "%s: new device registered, it is assigned major number %d\n",MODNAME, majorNum);
   return 0;
-} // end of devkoInit
+}
 
 void devkoExit(void) {
   unregister_chrdev(majorNum, DEVICE_NAME);
   // Clean up after ourselves
-  device_destroy(pClass, devNo);            // Remove the /dev/kmem
-  class_destroy(pClass);                    // Remove class /sys/class/kmem
+  device_destroy(class, devNo);            // Remove the /dev/kmem
+  class_destroy(class);                    // Remove class /sys/class/kmem
   unregister_chrdev(majorNum, DEVICE_NAME); // Unregister the device
 
   printk(KERN_INFO "new device unregistered, it was assigned major number %d\n", majorNum);

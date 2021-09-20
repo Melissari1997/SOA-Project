@@ -27,7 +27,7 @@ typedef struct _scanModuleStatus {
   ssize_t size;
 } scanModuleStatus;
 
-#define STATUS_SIZE_MAX (50*1024)
+#define STATUS_SIZE_MAX (20*4096)
 
 scanModuleStatus *getModuleStatus(void);
 void freeInstance(scanModuleStatus *inst);
@@ -41,7 +41,7 @@ loff_t dev_llseek(struct file *filp, loff_t f_pos, int whence);
 extern struct file_operations fileOps;
 extern int majorNum;
 extern dev_t devNo;          // Major and Minor device numbers combined into 32 bits
-extern struct class *pClass; // class_create will set this
+extern struct class *class; // class_create will set this
 
 int devkoInit(void);
 void devkoExit(void);
