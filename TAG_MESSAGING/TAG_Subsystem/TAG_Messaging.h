@@ -24,7 +24,6 @@
 // Struttura che definisce il TAG Service
 
 typedef struct TAG_Service{
-  refcount_t refCount;
   int key;             // chiave del tag service
   unsigned int tag;    // valore del tag
   int uid_Creator;   // PID del creatore

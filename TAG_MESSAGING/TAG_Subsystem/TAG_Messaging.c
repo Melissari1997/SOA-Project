@@ -50,7 +50,6 @@ int tag_get_CREATE(int key, int command, int permission) {
     }
     write_unlock_irqrestore(&searchLock, flags);
 
-    refcount_set(&service->refCount, 1); 
     __sync_add_and_fetch(&serviceCount, 1); 
 
   } else{  //chiave pubblica
@@ -66,7 +65,6 @@ int tag_get_CREATE(int key, int command, int permission) {
       module_put(THIS_MODULE);
       return -EFAULT;
     }
-    refcount_set(&service->refCount, 1); 
     AUDIT
     printk(KERN_INFO "[tag_get_CREATE] Service key: %d", key);
     __sync_add_and_fetch(&serviceCount, 1); 
@@ -95,8 +93,7 @@ int tag_get_OPEN(int key, int command, int permission) {
   read_lock_irqsave(&searchLock, flags);
   //cerco il servizio
   service = searchTAG_Service_withKey(tagServices, key);
-  if(service){
-    refcount_inc(&service->refCount);  
+  if(service){ 
     read_unlock_irqrestore(&searchLock, flags);
 
     if (!validServiceOperation(service)) {

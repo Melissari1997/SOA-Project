@@ -70,7 +70,6 @@ TAG_Service* new_TAG_Service(TAG_Service **tagServices,int key, int uid_Creator,
       tagServices[i]->tag = i;
       tagServices[i]->uid_Creator = uid_Creator;
       tagServices[i]->perm = perm;
-      refcount_set(&tagServices[i]->refCount, 0);
       list_init(&tagServices[i]->levels);
       for (j = 0; j < levelDeep ; j++){
         // creazione dei 32 livelli per ogni TAG service.
@@ -97,7 +96,6 @@ TAG_Service* getTAG_Service(TAG_Service **tagServices,int key, int uid_Creator, 
             tagServices[i]->tag = i;
             tagServices[i]->uid_Creator = uid_Creator;
             tagServices[i]->perm = perm;
-            refcount_set(&tagServices[i]->refCount, 0);
             AUDIT
             printk(KERN_INFO "Found service with tag ID %d", i);
             return tagServices[i];
